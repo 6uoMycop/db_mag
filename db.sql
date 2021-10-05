@@ -1,3 +1,23 @@
+/*
+ * Initial drop all tables
+ */
+ 
+DROP TABLE IF EXISTS "Students"		CASCADE;
+DROP TABLE IF EXISTS "Teachers"		CASCADE;
+DROP TABLE IF EXISTS "Courses"		CASCADE;
+DROP TABLE IF EXISTS "Gragebook"	CASCADE;
+DROP TABLE IF EXISTS "Rooms"		CASCADE;
+DROP TABLE IF EXISTS "Timetable"	CASCADE;
+DROP TABLE IF EXISTS "Documents"	CASCADE;
+DROP TABLE IF EXISTS "Jobs"			CASCADE;
+DROP TABLE IF EXISTS "Parents"		CASCADE;
+DROP TABLE IF EXISTS "Equipment"	CASCADE;
+
+
+/*
+ * Tables creation
+ */
+
 CREATE TABLE "Students" (
 /* Attributes */
 	"id"			integer,
