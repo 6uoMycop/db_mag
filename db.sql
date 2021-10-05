@@ -5,8 +5,10 @@ CREATE TABLE "Students" (
 	"rating"		integer			NOT NULL,
 	"majority"		BOOLEAN			NOT NULL,
 /* Attributes constraints */
-	CONSTRAINT "name_check"			CHECK ("name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),		-- Russian alphabet, space and '-'. Length >= 3
-	CONSTRAINT "rating_interval"	CHECK (0 <= "rating" AND rating <= 100),			-- Rating in range [0, 100]
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "rating_interval"	CHECK (		-- Rating in range [0, 100]
+		0 <= "rating" AND rating <= 100),
 
 /* Foreign keys */
 	"id_documents"	integer			NOT NULL,
