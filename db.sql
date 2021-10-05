@@ -163,12 +163,12 @@ CREATE TABLE "Documents" (
 /* Attributes constraints */
 	CONSTRAINT "type_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
 		"type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
-	CONSTRAINT "number_check"	CHECK (			-- Russian alphabet, latin alphabet, numbers, space and '-'. Length >= 3
+	CONSTRAINT "number_check"		CHECK (		-- Russian alphabet, latin alphabet, numbers, space and '-'. Length >= 3
 		"number" ~ '^([а-я]|[А-Я]|[a-z]|[A-Z]|[0-9]|[ -]){3,}$'),
 
 /* Foreign keys */
-	"id_students"	integer			NOT NULL,
-	"id_teachers"	integer			NOT NULL,
+	"id_students"	integer,
+	"id_teachers"	integer,
 /* Primary key */
 	CONSTRAINT "Documents_pk"		PRIMARY KEY ("id")
 );
@@ -268,7 +268,7 @@ VALUES					(0,		"Информационная безопасность",	"Про
 INSERT INTO "Courses"	("id",	"name",							"annotation",								"duration",	"price"	)
 VALUES					(0,		"Компьютерные сети",			"Введение в компьютерные сети",				103,		40000	);
 INSERT INTO "Courses"	("id",	"name",							"annotation",								"duration",	"price"	)
-VALUES					(0,		"Системное программирование",	"Разработка системного ПО для Windows",		300,		79000	);
+VALUES					(0,		"Системное программирование",	"Разработка системного ПО для ОС Windows",	300,		79000	);
 
 /* Rooms */
 
@@ -378,26 +378,25 @@ INSERT INTO "Timetable"	("id", "start", "end", "dow") VALUES (37,	"13:00:00",	"1
 
 /* Documents */
 
-INSERT INTO "Documents"	("id", "type", "number") VALUES (0,		"Паспорт",					"4004 078567");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (2,		"Паспорт",					"4005 427247");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (4,		"Паспорт",					"4000 934575");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (6,		"Паспорт",					"4013 524157");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (1,		"Диплом",					"473892 7462947");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (3,		"Диплом",					"471548 2874782");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (5,		"Диплом",					"215678 3205704");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (7,		"Диплом",					"393024 7882445");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (23,	"Свидетельство о рождении",	"IV-ЖА 837462");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (24,	"Свидетельство о рождении",	"XI-ВЫ 643254");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (25,	"Свидетельство о рождении",	"XV-МК 867014");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (26,	"Свидетельство о рождении",	"II-ЛУ 953135");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (29,	"Паспорт",					"4018 850788");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (32,	"Паспорт",					"4017 634234");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (33,	"Паспорт",					"4019 853456");
-INSERT INTO "Documents"	("id", "type", "number") VALUES (34,	"Паспорт",					"4020 352465");
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (0,	"Паспорт",					"4004 078567",		1);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (2,	"Паспорт",					"4015 427247",		2);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (4,	"Паспорт",					"4000 934575",		3);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (6,	"Паспорт",					"4003 524157",		5);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (1,	"Диплом",					"473892 7462947",	1);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (3,	"Диплом",					"471548 2874782",	2);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (5,	"Диплом",					"215678 3205704",	3);
+INSERT INTO "Documents"	("id", "type", "number", "id_teachers") VALUES (7,	"Диплом",					"393024 7882445",	5);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (23,	"Свидетельство о рождении",	"IV-ЖА 837462",		35);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (24,	"Свидетельство о рождении",	"XI-ВЫ 643254",		37);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (25,	"Свидетельство о рождении",	"XV-МК 867014",		42);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (26,	"Свидетельство о рождении",	"II-ЛУ 953135",		45);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (29,	"Паспорт",					"4018 850788",		34);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (32,	"Паспорт",					"4017 634234",		36);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (33,	"Паспорт",					"4019 853456",		43);
+INSERT INTO "Documents"	("id", "type", "number", "id_students") VALUES (34,	"Паспорт",					"4020 352465",		46);
 
 /* Jobs */
 
-INSERT INTO "Jobs"		("id", "name") VALUES (0,	"ФГАОУ ВО СПбПУ");
 INSERT INTO "Jobs"		("id", "name") VALUES (1,	"ФГАОУ ВО СПбПУ");
 INSERT INTO "Jobs"		("id", "name") VALUES (2,	"ООО НеоБИТ");
 INSERT INTO "Jobs"		("id", "name") VALUES (3,	"АО МЦСТ");
