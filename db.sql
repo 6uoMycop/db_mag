@@ -1,53 +1,71 @@
-CREATE TABLE "public.Students" (
+CREATE TABLE "Students" (
 /* Attributes */
-	"id"			serial,
-	"name"			varchar(128),
+	"id"			integer,
+	"name"			varchar(128)	NOT NULL,
 	"rating"		integer			NOT NULL,
 	"majority"		BOOLEAN			NOT NULL,
 /* Attributes constraints */
+	CONSTRAINT "name_check"			CHECK ("name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),		-- Russian alphabet, space and '-'. Length >= 3
+	CONSTRAINT "rating_interval"	CHECK (0 <= "rating" AND rating <= 100),			-- Rating in range [0, 100]
 
 /* Foreign keys */
 	"id_documents"	integer			NOT NULL,
 	"id_parents"	integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Students_pk"		PRIMARY KEY ("id")
+	CONSTRAINT "Students_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Teachers" (
+CREATE TABLE "Teachers" (
 /* Attributes */
-	"id"			serial,
-	"name"			varchar(128),
+	"id"			integer,
+	"name"			varchar(128)	NOT NULL,
 	"speciality"	varchar(64)		NOT NULL,
 	"degree"		varchar(32)		NOT NULL,
 	"rating"		integer			NOT NULL,
 	"salary"		FLOAT			NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "speciality_check"	CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"speciality" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "degree_check"		CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"degree" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "rating_interval"	CHECK (		-- Rating in range [0, 100]
+		0 <= "rating" AND rating <= 100),
+	CONSTRAINT "salary_interval"	CHECK (		-- Salary in range (0, inf)
+		0 < "salary"),
 
 /* Foreign keys */
 	"id_documents"	integer			NOT NULL,
 	"id_jobs"		integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Teachers_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Teachers_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Courses" (
+CREATE TABLE "Courses" (
 /* Attributes */
-	"id"			serial,
-	"name"			varchar(128),
-	"annotation"	TEXT(1024)		NOT NULL,
+	"id"			integer,
+	"name"			varchar(128)	NOT NULL,
+	"annotation"	varchar(1024)	NOT NULL,
 	"duration"		integer			NOT NULL,
-	"price"			integer			NOT NULL,
+	"price"			FLOAT			NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "annotation_check"	CHECK (		-- Russian alphabet, special symbols. Length >= 15
+		"annotation" ~ '^([а-я]|[А-Я]|[0-9]|[ .,;:@№%()/-]){15,}$'),
+	CONSTRAINT "duration_interval"	CHECK (		-- Duration in range (0, inf)
+		0 < "duration"),
+	CONSTRAINT "price_interval"		CHECK (		-- Price in range (0, inf)
+		0 < "price"),
 
 /* Foreign keys */
 	"id_courses"	integer			NOT NULL,
@@ -55,58 +73,65 @@ CREATE TABLE "public.Courses" (
 	"id_students"	integer			NOT NULL,
 	"id_equipment"	integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Courses_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Courses_pk"			PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Gragebook" (
+CREATE TABLE "Gragebook" (
 /* Attributes */
-	"id"			serial			NOT NULL,
+	"id"			integer			NOT NULL,
 	"type"			varchar(32)		NOT NULL,
 	"score"			integer			NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "type_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "score_interval"		CHECK (		-- Score in range [2, 5]
+		2 <= "score" AND score <= 5),
 
 /* Foreign keys */
-	"id_teachers"	BINARY			NOT NULL,
-	"id_students"	BINARY			NOT NULL,
-	"id_courses"	BINARY			NOT NULL,
+	"id_teachers"	integer			NOT NULL,
+	"id_students"	integer			NOT NULL,
+	"id_courses"	integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Gragebook_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Gragebook_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Rooms" (
+CREATE TABLE "Rooms" (
 /* Attributes */
-	"id"			serial			NOT NULL,
+	"id"			integer			NOT NULL,
 	"type"			varchar(32)		NOT NULL,
-	"number"		integer(32)		NOT NULL,
+	"number"		integer			NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "type_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "number_interval"	CHECK (		-- Number in range [101, 123]U[201, 217] -- First and second floor rooms
+		(101 <= "number" AND "number" <= 123) OR (201 <= "number" AND "number" <= 217)),
 
 /* Foreign keys */
 	"id_equipment"	integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Rooms_pk"		PRIMARY KEY ("id")
+	CONSTRAINT "Rooms_pk"			PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Timetable" (
+CREATE TABLE "Timetable" (
 /* Attributes */
-	"id"			serial			NOT NULL,
-	"start"			DATETIME		NOT NULL,
-	"end"			DATETIME		NOT NULL,
+	"id"			integer			NOT NULL,
+	"start"			timestamp		NOT NULL,
+	"end"			timestamp		NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "time_check"			CHECK (		-- Start must be erlier than end
+		"start" < "end"),
 
 /* Foreign keys */
 	"id_teachers"	integer			NOT NULL,
@@ -114,72 +139,78 @@ CREATE TABLE "public.Timetable" (
 	"id_rooms"		integer			NOT NULL,
 	"id_courses"	integer			NOT NULL,
 /* Primary key */
-	CONSTRAINT	"Timetable_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Timetable_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Documents" (
+CREATE TABLE "Documents" (
 /* Attributes */
-	"id"			serial			NOT NULL,
+	"id"			integer			NOT NULL,
 	"type"			varchar(64)		NOT NULL,
 	"number"		DECIMAL			NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "type_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+	CONSTRAINT "number_interval"	CHECK (		-- Number in range (0, inf)
+		0 < "number"),
 
 /* Foreign keys */
 /* Primary key */
-	CONSTRAINT	"Documents_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Documents_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Jobs" (
+CREATE TABLE "Jobs" (
 /* Attributes */
-	"id"			serial			NOT NULL,
+	"id"			integer			NOT NULL,
 	"name"			varchar(128)	NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
 
 /* Foreign keys */
 /* Primary key */
-	CONSTRAINT	"Jobs_pk"		PRIMARY KEY ("id")
+	CONSTRAINT "Jobs_pk"			PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Parents" (
+CREATE TABLE "Parents" (
 /* Attributes */
-	"id"			serial			NOT NULL,
-	"name"			serial(128)		NOT NULL,
+	"id"			integer			NOT NULL,
+	"name"			varchar(128)	NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
 
 /* Foreign keys */
 /* Primary key */
-	CONSTRAINT	"Parents_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Parents_pk"			PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
 
 
 
-CREATE TABLE "public.Equipment" (
+CREATE TABLE "Equipment" (
 /* Attributes */
-	"id"			serial			NOT NULL,
-	"name"			serial(128)		NOT NULL,
+	"id"			integer			NOT NULL,
+	"name"			varchar(128)	NOT NULL,
 /* Attributes constraints */
-
+	CONSTRAINT "name_check"			CHECK (		-- Russian alphabet, space and '-'. Length >= 3
+		"name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
 
 /* Foreign keys */
 /* Primary key */
-	CONSTRAINT	"Equipment_pk"	PRIMARY KEY ("id")
+	CONSTRAINT "Equipment_pk"		PRIMARY KEY ("id")
 ) WITH (
 	OIDS=FALSE
 );
