@@ -319,6 +319,7 @@ VALUES                  (3,     'Сысоева Лариса Вениамино�
 INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
 VALUES                  (5,     'Тарасов Роман Семенович',      'Математическая логика, алгебра и теория чисел',    'Доктор наук',      99,         200000  );
 
+
 /* Courses */
 
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
@@ -328,12 +329,12 @@ VALUES                  (1,     'Компьютерные сети',            
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
 VALUES                  (2,     'Системное программирование',   'Разработка системного ПО для ОС Windows',  300,        79000   );
 
+
 /* Courses_MM_Courses - предшествующие курсы */
 
-INSERT INTO "Courses_MM_Courses"    ("id_courses_cur",  "id_courses_prev" )
-VALUES                              (0,                 1                 );
-INSERT INTO "Courses_MM_Courses"    ("id_courses_cur",  "id_courses_prev" )
-VALUES                              (0,                 2                 );
+INSERT INTO "Courses_MM_Courses" ("id_courses_cur", "id_courses_prev") VALUES (0, 1);
+INSERT INTO "Courses_MM_Courses" ("id_courses_cur", "id_courses_prev") VALUES (0, 2);
+
 
 /* Rooms */
 
@@ -347,6 +348,7 @@ INSERT INTO "Rooms"     ("id",  "type",                 "number")
 VALUES                  (4,     'Учебная аудитория',    174);
 INSERT INTO "Rooms"     ("id",  "type",                 "number")
 VALUES                  (5,     'Учебная аудитория',    175);
+
 
 /* Students */
 
@@ -367,26 +369,19 @@ VALUES                  (6,     'Логинов Эрик Робертович', 
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
 VALUES                  (7,     'Крылов Алексей Васильевич',    81,         TRUE);
 
+
 /* Students_MM_Courses */
 
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (0,                 1            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (0,                 2            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (1,                 2            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (2,                 0            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (3,                 0            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (4,                 0            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (5,                 0            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (6,                 0            );
-INSERT INTO "Students_MM_Courses"   ("id_students",     "id_courses" )
-VALUES                              (7,                 0            );
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (0, 1);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (0, 2);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (1, 2);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (2, 0);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (3, 0);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (4, 0);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (5, 0);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (6, 0);
+INSERT INTO "Students_MM_Courses" ("id_students", "id_courses") VALUES (7, 0);
+
 
 /* Timetable */
 
@@ -417,6 +412,7 @@ INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", 
 INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (22,  '10:00:00', '12:30:00', 4, 2, 0, 3);
 INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (23,  '13:00:00', '13:30:00', 4, 2, 4, 3);
 
+
 /* Documents */
 
 INSERT INTO "Documents" ("id", "type", "number", "id_teachers") VALUES (0,  'Паспорт',                  '4004 078567',      1);
@@ -436,44 +432,46 @@ INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (32, 'П�
 INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (33, 'Паспорт',                  '4019 853456',      5);
 INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (34, 'Паспорт',                  '4020 352465',      7);
 
+
 /* Jobs */
 
-INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (0,   'ФГАОУ ВО СПбПУ',    3);
-INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (1,   'ФГАОУ ВО СПбПУ',    5);
-INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (2,   'ООО НеоБИТ',        1);
-INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (3,   'АО МЦСТ',           2);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (0, 'ФГАОУ ВО СПбПУ', 3);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (1, 'ФГАОУ ВО СПбПУ', 5);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (2, 'ООО НеоБИТ',     1);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (3, 'АО МЦСТ',        2);
+
 
 /* Parents */
 
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (30,  'Михайлов Павел Антонович',      0);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (31,  'Михайлова Зоя Васильевна',      1);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (32,  'Авдеев Святослав Богданович',   2);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (33,  'Авдеева Елена Юрьевна',         3);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (34,  'Семенов Родион Витальевич',     4);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (35,  'Семенова Валерия Мартыновна',   5);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (36,  'Логинов Роберт Геннадьевич',    6);
-INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (37,  'Логинова Кристина Матвеевна',   7);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (30, 'Михайлов Павел Антонович',    0);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (31, 'Михайлова Зоя Васильевна',    1);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (32, 'Авдеев Святослав Богданович', 2);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (33, 'Авдеева Елена Юрьевна',       3);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (34, 'Семенов Родион Витальевич',   4);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (35, 'Семенова Валерия Мартыновна', 5);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (36, 'Логинов Роберт Геннадьевич',  6);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (37, 'Логинова Кристина Матвеевна', 7);
 
 
 /* Equipment */
 
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (0,     'ПК',                       92394, 0);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (1,     'ПК',                       40446, 1);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (2,     'ПК',                       49939, 1);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (3,     'ПК',                       14949, 3);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (4,     'ПК',                       31254, 3);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (5,     'ПК',                       75727, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (6,     'ПК',                       80152, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (7,     'ПК',                       43809, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (8,     'ПК',                       50706, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (9,     'ПК',                       78087, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (10,    'ПК',                       78207, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (11,    'ПК',                       98324, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (12,    'Проектор',                 28870, 0);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (13,    'Учебный коммутатор',       46193, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (14,    'Учебный коммутатор',       59193, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (15,    'Учебный маршрутизатор',    37154, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (16,    'Учебный маршрутизатор',    38304, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (0,  'ПК',                    92394, 0);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (1,  'ПК',                    40446, 1);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (2,  'ПК',                    49939, 1);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (3,  'ПК',                    14949, 3);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (4,  'ПК',                    31254, 3);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (5,  'ПК',                    75727, 4);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (6,  'ПК',                    80152, 4);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (7,  'ПК',                    43809, 4);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (8,  'ПК',                    50706, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (9,  'ПК',                    78087, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (10, 'ПК',                    78207, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (11, 'ПК',                    98324, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (12, 'Проектор',              28870, 0);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (13, 'Учебный коммутатор',    46193, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (14, 'Учебный коммутатор',    59193, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (15, 'Учебный маршрутизатор', 37154, 5);
+INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (16, 'Учебный маршрутизатор', 38304, 5);
 
 
 /* Gradebook */
