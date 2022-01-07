@@ -13,11 +13,17 @@ DROP TABLE IF EXISTS "Jobs"         CASCADE;
 DROP TABLE IF EXISTS "Parents"      CASCADE;
 DROP TABLE IF EXISTS "Equipment"    CASCADE;
 
+DROP TABLE IF EXISTS "Courses_MM_Equipment"     CASCADE;
+DROP TABLE IF EXISTS "Courses_MM_Courses"       CASCADE;
+
 
 
 /*
  * Tables creation
  */
+
+
+/* Main tables */
 
 
 CREATE TABLE "Students" (
@@ -33,9 +39,8 @@ CREATE TABLE "Students" (
         0 <= "rating" AND rating <= 100),
 
 /* Foreign keys */
-    "id_courses"    integer         NOT NULL,
-    "id_gradebook"  integer         NOT NULL,
-    "id_timetable"  integer         NOT NULL,
+--    "id_courses"    integer         NOT NULL,
+--    "id_gradebook"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Students_pk"        PRIMARY KEY ("id")
 );
@@ -53,19 +58,25 @@ CREATE TABLE "Teachers" (
 /* Attributes constraints */
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
         "name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
-    CONSTRAINT "speciality_check"   CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "speciality" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
-    CONSTRAINT "degree_check"       CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "degree" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+    CONSTRAINT "speciality_check"   CHECK (     -- Russian alphabet, space, ',' and '-'. Length >= 3
+        "speciality" ~ '^([а-я]|[А-Я]|[ ,-]){3,}$'),
+    CONSTRAINT "degree_check"       CHECK (     -- Допустимые значения
+        "degree" IN (
+          'Бакалавр'
+        , 'Специалист'
+        , 'Магистр'
+        , 'Кандидат наук'
+        , 'Доктор наук'
+    )),
     CONSTRAINT "rating_interval"    CHECK (     -- Rating in range [0, 100]
         0 <= "rating" AND rating <= 100),
     CONSTRAINT "salary_interval"    CHECK (     -- Salary in range (0, inf)
         0 < "salary"),
 
 /* Foreign keys */
-    "id_courses"    integer         NOT NULL,
-    "id_gradebook"  integer         NOT NULL,
-    "id_timetable"  integer         NOT NULL,
+--    "id_courses"    integer         NOT NULL,
+--    "id_gradebook"  integer         NOT NULL,
+--    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Teachers_pk"        PRIMARY KEY ("id")
 );
@@ -82,17 +93,17 @@ CREATE TABLE "Courses" (
 /* Attributes constraints */
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
         "name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
-    CONSTRAINT "annotation_check"   CHECK (     -- Russian alphabet, special symbols. Length >= 15
-        "annotation" ~ '^([а-я]|[А-Я]|[0-9]|[ .,;:@№%()/-]){15,}$'),
+    CONSTRAINT "annotation_check"   CHECK (     -- Russian and English alphabet, special symbols. Length >= 15
+        "annotation" ~ '^([а-я]|[А-Я]|[a-z]|[A-Z]|[0-9]|[ .,;:@№%()/-]){15,}$'),
     CONSTRAINT "duration_interval"  CHECK (     -- Duration in range (0, inf)
         0 < "duration"),
     CONSTRAINT "price_interval"     CHECK (     -- Price in range (0, inf)
         0 < "price"),
 
 /* Foreign keys */
-    "id_courses"    integer         NOT NULL,
-    "id_gradebook"  integer         NOT NULL,
-    "id_timetable"  integer         NOT NULL,
+--    "id_courses"    integer,
+--    "id_gradebook"  integer         NOT NULL,
+--    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Courses_pk"         PRIMARY KEY ("id")
 );
@@ -105,12 +116,20 @@ CREATE TABLE "Gradebook" (
     "type"          varchar(32)     NOT NULL,
     "score"         integer         NOT NULL,
 /* Attributes constraints */
-    CONSTRAINT "type_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+    CONSTRAINT "type_check"         CHECK (     -- Допустимые значения
+        "type" IN (
+          'Занятие'
+        , 'Лаба'
+        , 'Тест'
+        , 'Итог'
+    )),
     CONSTRAINT "score_interval"     CHECK (     -- Score in range [2, 5]
         2 <= "score" AND score <= 5),
 
 /* Foreign keys */
+    "id_courses"    integer         NOT NULL,
+    "id_students"   integer         NOT NULL,
+    "id_teachers"   integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Gradebook_pk"       PRIMARY KEY ("id")
 );
@@ -123,13 +142,16 @@ CREATE TABLE "Rooms" (
     "type"          varchar(32)     NOT NULL,
     "number"        integer         NOT NULL,
 /* Attributes constraints */
-    CONSTRAINT "type_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+    CONSTRAINT "type_check"         CHECK (     -- Допустимые значения
+        "type" IN (
+              'Учебная аудитория'
+            , 'Преподавательская'
+    )),
     CONSTRAINT "number_interval"    CHECK (     -- Number in range [170, 175]
         170 <= "number" AND "number" <= 175),
 
 /* Foreign keys */
-    "id_timetable"  integer         NOT NULL,
+--    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Rooms_pk"           PRIMARY KEY ("id")
 );
@@ -149,6 +171,9 @@ CREATE TABLE "Timetable" (
         1 <= "dow" AND "dow" <= 6),
 
 /* Foreign keys */
+    "id_courses"    integer         NOT NULL,
+    "id_rooms"      integer         NOT NULL,
+    "id_teachers"   integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Timetable_pk"       PRIMARY KEY ("id")
 );
@@ -161,14 +186,21 @@ CREATE TABLE "Documents" (
     "type"          varchar(64)     NOT NULL,
     "number"        varchar(64)     NOT NULL,
 /* Attributes constraints */
-    CONSTRAINT "type_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "type" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+    CONSTRAINT "type_check"         CHECK (     -- Допустимые значения
+        "type" IN (
+              'Паспорт'
+            , 'Свидетельство о рождении'
+            , 'Диплом'
+    )),
     CONSTRAINT "number_check"       CHECK (     -- Russian alphabet, latin alphabet, numbers, space and '-'. Length >= 3
         "number" ~ '^([а-я]|[А-Я]|[a-z]|[A-Z]|[0-9]|[ -]){3,}$'),
 
 /* Foreign keys */
-    "id_students"   integer,
-    "id_teachers"   integer,
+    "id_students"   integer         UNIQUE,
+    "id_teachers"   integer         UNIQUE,
+/* Foreign keys constraints */
+    CONSTRAINT "only_one_id_check"  CHECK (     -- Check if only one is set
+        "id_students" IS NULL  OR "id_teachers" IS NULL),
 /* Primary key */
     CONSTRAINT "Documents_pk"       PRIMARY KEY ("id")
 );
@@ -219,30 +251,54 @@ CREATE TABLE "Equipment" (
         0 <= "number_inv"),
 
 /* Foreign keys */
-    "id_courses"    integer         NOT NULL,
-    "id_rooms"      integer         NOT NULL,
+--    "id_courses"    integer         NOT NULL,
+--    "id_rooms"      integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Equipment_pk"       PRIMARY KEY ("id")
 );
 
 
 
-ALTER TABLE "Teachers"  ADD CONSTRAINT "Teachers_fk0"   FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
-ALTER TABLE "Teachers"  ADD CONSTRAINT "Teachers_fk1"   FOREIGN KEY ("id_gradebook")    REFERENCES "Gradebook"("id");
-ALTER TABLE "Teachers"  ADD CONSTRAINT "Teachers_fk2"   FOREIGN KEY ("id_timetable")    REFERENCES "Timetable"("id");
-ALTER TABLE "Courses"   ADD CONSTRAINT "Courses_fk0"    FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
-ALTER TABLE "Courses"   ADD CONSTRAINT "Courses_fk1"    FOREIGN KEY ("id_gradebook")    REFERENCES "Gradebook"("id");
-ALTER TABLE "Courses"   ADD CONSTRAINT "Courses_fk2"    FOREIGN KEY ("id_timetable")    REFERENCES "Timetable"("id");
-ALTER TABLE "Rooms"     ADD CONSTRAINT "Rooms_fk0"      FOREIGN KEY ("id_timetable")    REFERENCES "Timetable"("id");
-ALTER TABLE "Students"  ADD CONSTRAINT "Students_fk0"   FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
-ALTER TABLE "Students"  ADD CONSTRAINT "Students_fk1"   FOREIGN KEY ("id_gradebook")    REFERENCES "Gradebook"("id");
-ALTER TABLE "Students"  ADD CONSTRAINT "Students_fk2"   FOREIGN KEY ("id_timetable")    REFERENCES "Timetable"("id");
+/* Intermediate tables */
+
+CREATE TABLE "Courses_MM_Equipment" (
+/* Foreign keys */
+    "id_courses"    integer         NOT NULL,
+    "id_equipment"  integer         NOT NULL,
+    CONSTRAINT "C_mm_E_fk0"         FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id"),
+    CONSTRAINT "C_mm_E_fk1"         FOREIGN KEY ("id_equipment")    REFERENCES "Equipment"("id")
+);
+
+
+
+CREATE TABLE "Courses_MM_Courses" (  -- Предшествующие курсы
+/* Foreign keys */
+    "id_courses_cur"    integer     NOT NULL,
+    "id_courses_prev"   integer     NOT NULL,
+    CONSTRAINT "C_mm_С_fk0"         FOREIGN KEY ("id_courses_cur")  REFERENCES "Courses"("id"),
+    CONSTRAINT "C_mm_С_fk1"         FOREIGN KEY ("id_courses_prev") REFERENCES "Courses"("id")
+);
+
+
+
+/* Foreign keys */
+
+/* Main tables */
+
+ALTER TABLE "Gradebook" ADD CONSTRAINT "Gradebook_fk0"  FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
+ALTER TABLE "Gradebook" ADD CONSTRAINT "Gradebook_fk1"  FOREIGN KEY ("id_students")     REFERENCES "Students"("id");
+ALTER TABLE "Gradebook" ADD CONSTRAINT "Gradebook_fk2"  FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id");
+
+ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_fk0"  FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
+ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_fk1"  FOREIGN KEY ("id_rooms")        REFERENCES "Rooms"("id");
+ALTER TABLE "Timetable" ADD CONSTRAINT "Timetable_fk2"  FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id");
+
 ALTER TABLE "Documents" ADD CONSTRAINT "Documents_fk0"  FOREIGN KEY ("id_students")     REFERENCES "Students"("id");
 ALTER TABLE "Documents" ADD CONSTRAINT "Documents_fk1"  FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id");
+
 ALTER TABLE "Jobs"      ADD CONSTRAINT "Jobs_fk0"       FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id");
+
 ALTER TABLE "Parents"   ADD CONSTRAINT "Parents_fk0"    FOREIGN KEY ("id_students")     REFERENCES "Students"("id");
-ALTER TABLE "Equipment" ADD CONSTRAINT "Equipment_fk0"  FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id");
-ALTER TABLE "Equipment" ADD CONSTRAINT "Equipment_fk1"  FOREIGN KEY ("id_rooms")        REFERENCES "Rooms"("id");
 
 
 
@@ -252,23 +308,23 @@ ALTER TABLE "Equipment" ADD CONSTRAINT "Equipment_fk1"  FOREIGN KEY ("id_rooms")
 
 /* Teachers */
 
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",                               "rating",   "salary")
-VALUES                  (1,     'Иванков Илья Дмитриевич',      'Информационная безопасность',                      'Кандидат технических наук',            79,         112000  );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",                               "rating",   "salary")
-VALUES                  (2,     'Мишин Даниил Романович',       'Информатика и вычислительная техника',             'Магистр',                              46,         60000   );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",                               "rating",   "salary")
-VALUES                  (3,     'Сысоева Лариса Вениаминовна',  'Управление в технических системах',                'Кандидат технических наук',            72,         109000  );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",                               "rating",   "salary")
-VALUES                  (5,     'Тарасов Роман Семенович',      'Математическая логика, алгебра и теория чисел',    'Доктор физико-математических наук',    99,         200000  );
+INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (1,     'Иванков Илья Дмитриевич',      'Информационная безопасность',                      'Кандидат наук',    79,         112000  );
+INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (2,     'Мишин Даниил Романович',       'Информатика и вычислительная техника',             'Магистр',          46,         60000   );
+INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (3,     'Сысоева Лариса Вениаминовна',  'Управление в технических системах',                'Кандидат наук',    72,         109000  );
+INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (5,     'Тарасов Роман Семенович',      'Математическая логика, алгебра и теория чисел',    'Доктор наук',      99,         200000  );
 
 /* Courses */
 
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
 VALUES                  (0,     'Информационная безопасность',  'Программа переподготовки специалистов',    512,        120000  );
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
-VALUES                  (0,     'Компьютерные сети',            'Введение в компьютерные сети',             103,        40000   );
+VALUES                  (1,     'Компьютерные сети',            'Введение в компьютерные сети',             103,        40000   );
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
-VALUES                  (0,     'Системное программирование',   'Разработка системного ПО для ОС Windows',  300,        79000   );
+VALUES                  (2,     'Системное программирование',   'Разработка системного ПО для ОС Windows',  300,        79000   );
 
 /* Rooms */
 
