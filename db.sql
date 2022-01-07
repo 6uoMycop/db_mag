@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS "Parents"      CASCADE;
 DROP TABLE IF EXISTS "Equipment"    CASCADE;
 
 DROP TABLE IF EXISTS "Courses_MM_Equipment"     CASCADE;
+DROP TABLE IF EXISTS "Rooms_MM_Equipment"       CASCADE;
 DROP TABLE IF EXISTS "Courses_MM_Courses"       CASCADE;
 DROP TABLE IF EXISTS "Students_MM_Courses"      CASCADE;
 
@@ -235,15 +236,14 @@ CREATE TABLE "Equipment" (
 /* Attributes */
     "id"            integer         NOT NULL,
     "name"          varchar(128)    NOT NULL,
-    "number_inv"    integer         NOT NULL,
+    "number"        integer         NOT NULL,   -- Количество, шт
 /* Attributes constraints */
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 2
         "name" ~ '^([а-я]|[А-Я]|[ -]){2,}$'),
-    CONSTRAINT "number_inv_interval"    CHECK ( -- Inventory number in range [0, inf)
-        0 <= "number_inv"),
+    CONSTRAINT "number_interval"    CHECK (     -- Number of items in range [0, inf)
+        0 <= "number"),
 
 /* Foreign keys */
-    "id_rooms"      integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Equipment_pk"       PRIMARY KEY ("id")
 );
@@ -257,6 +257,15 @@ CREATE TABLE "Courses_MM_Equipment" (
     "id_courses"    integer         NOT NULL,
     "id_equipment"  integer         NOT NULL,
     CONSTRAINT "C_mm_E_fk0"         FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id"),
+    CONSTRAINT "C_mm_E_fk1"         FOREIGN KEY ("id_equipment")    REFERENCES "Equipment"("id")
+);
+
+
+CREATE TABLE "Rooms_MM_Equipment" (
+/* Foreign keys */
+    "id_rooms"      integer         NOT NULL,
+    "id_equipment"  integer         NOT NULL,
+    CONSTRAINT "C_mm_E_fk0"         FOREIGN KEY ("id_rooms")        REFERENCES "Rooms"("id"),
     CONSTRAINT "C_mm_E_fk1"         FOREIGN KEY ("id_equipment")    REFERENCES "Equipment"("id")
 );
 
@@ -301,7 +310,6 @@ ALTER TABLE "Jobs"      ADD CONSTRAINT "Jobs_fk0"       FOREIGN KEY ("id_teacher
 
 ALTER TABLE "Parents"   ADD CONSTRAINT "Parents_fk0"    FOREIGN KEY ("id_students")     REFERENCES "Students"("id");
 
-ALTER TABLE "Equipment" ADD CONSTRAINT "Equipment_fk1"  FOREIGN KEY ("id_rooms")        REFERENCES "Rooms"("id");
 
 
 /*
@@ -455,24 +463,35 @@ INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (37, 'Логино�
 
 /* Equipment */
 
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (0,  'ПК',                    92394, 0);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (1,  'ПК',                    40446, 1);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (2,  'ПК',                    49939, 1);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (3,  'ПК',                    14949, 3);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (4,  'ПК',                    31254, 3);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (5,  'ПК',                    75727, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (6,  'ПК',                    80152, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (7,  'ПК',                    43809, 4);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (8,  'ПК',                    50706, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (9,  'ПК',                    78087, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (10, 'ПК',                    78207, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (11, 'ПК',                    98324, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (12, 'Проектор',              28870, 0);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (13, 'Учебный коммутатор',    46193, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (14, 'Учебный коммутатор',    59193, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (15, 'Учебный маршрутизатор', 37154, 5);
-INSERT INTO "Equipment" ("id", "name", "number_inv", "id_rooms") VALUES (16, 'Учебный маршрутизатор', 38304, 5);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (0, 'ПК',                    1);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (1, 'ПК',                    2);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (2, 'ПК',                    6);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (3, 'ПК',                    4);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (4, 'ПК',                    8);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (5, 'Проектор',              1);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (6, 'Учебный коммутатор',    2);
+INSERT INTO "Equipment" ("id", "name", "number") VALUES (7, 'Учебный маршрутизатор', 2);
 
+
+/* Courses_MM_Equipment */
+
+INSERT INTO "Courses_MM_Equipment" ("id_courses", "id_equipment") VALUES (0, 2);
+INSERT INTO "Courses_MM_Equipment" ("id_courses", "id_equipment") VALUES (1, 2);
+INSERT INTO "Courses_MM_Equipment" ("id_courses", "id_equipment") VALUES (1, 6);
+INSERT INTO "Courses_MM_Equipment" ("id_courses", "id_equipment") VALUES (1, 7);
+INSERT INTO "Courses_MM_Equipment" ("id_courses", "id_equipment") VALUES (2, 2);
+
+
+/* Rooms_MM_Equipment */
+
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (0, 5);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (0, 3);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (1, 4);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (3, 2);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (4, 4);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (5, 4);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (5, 6);
+INSERT INTO "Rooms_MM_Equipment"   ("id_rooms", "id_equipment")   VALUES (5, 7);
 
 /* Gradebook */
 
