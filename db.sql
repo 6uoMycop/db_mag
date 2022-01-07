@@ -39,8 +39,6 @@ CREATE TABLE "Students" (
         0 <= "rating" AND rating <= 100),
 
 /* Foreign keys */
---    "id_courses"    integer         NOT NULL,
---    "id_gradebook"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Students_pk"        PRIMARY KEY ("id")
 );
@@ -74,9 +72,6 @@ CREATE TABLE "Teachers" (
         0 < "salary"),
 
 /* Foreign keys */
---    "id_courses"    integer         NOT NULL,
---    "id_gradebook"  integer         NOT NULL,
---    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Teachers_pk"        PRIMARY KEY ("id")
 );
@@ -101,9 +96,6 @@ CREATE TABLE "Courses" (
         0 < "price"),
 
 /* Foreign keys */
---    "id_courses"    integer,
---    "id_gradebook"  integer         NOT NULL,
---    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Courses_pk"         PRIMARY KEY ("id")
 );
@@ -151,7 +143,6 @@ CREATE TABLE "Rooms" (
         170 <= "number" AND "number" <= 175),
 
 /* Foreign keys */
---    "id_timetable"  integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Rooms_pk"           PRIMARY KEY ("id")
 );
@@ -161,8 +152,8 @@ CREATE TABLE "Rooms" (
 CREATE TABLE "Timetable" (
 /* Attributes */
     "id"            integer         NOT NULL,
-    "start"         timestamp       NOT NULL,
-    "end"           timestamp       NOT NULL,
+    "start"         time            NOT NULL,
+    "end"           time            NOT NULL,
     "dow"           integer         NOT NULL,
 /* Attributes constraints */
     CONSTRAINT "time_check"         CHECK (     -- Start must be erlier than end
@@ -196,8 +187,8 @@ CREATE TABLE "Documents" (
         "number" ~ '^([а-я]|[А-Я]|[a-z]|[A-Z]|[0-9]|[ -]){3,}$'),
 
 /* Foreign keys */
-    "id_students"   integer         UNIQUE,
-    "id_teachers"   integer         UNIQUE,
+    "id_students"   integer         DEFAULT NULL,
+    "id_teachers"   integer         DEFAULT NULL,
 /* Foreign keys constraints */
     CONSTRAINT "only_one_id_check"  CHECK (     -- Check if only one is set
         "id_students" IS NULL  OR "id_teachers" IS NULL),
@@ -245,14 +236,12 @@ CREATE TABLE "Equipment" (
     "name"          varchar(128)    NOT NULL,
     "number_inv"    integer         NOT NULL,
 /* Attributes constraints */
-    CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
-        "name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
+    CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 2
+        "name" ~ '^([а-я]|[А-Я]|[ -]){2,}$'),
     CONSTRAINT "number_inv_interval"    CHECK ( -- Inventory number in range [0, inf)
         0 <= "number_inv"),
 
 /* Foreign keys */
---    "id_courses"    integer         NOT NULL,
---    "id_rooms"      integer         NOT NULL,
 /* Primary key */
     CONSTRAINT "Equipment_pk"       PRIMARY KEY ("id")
 );
@@ -326,6 +315,13 @@ VALUES                  (1,     'Компьютерные сети',            
 INSERT INTO "Courses"   ("id",  "name",                         "annotation",                               "duration", "price" )
 VALUES                  (2,     'Системное программирование',   'Разработка системного ПО для ОС Windows',  300,        79000   );
 
+/* Courses_MM_Courses - предшествующие курсы */
+
+INSERT INTO "Courses_MM_Courses"    ("id_courses_cur",  "id_courses_prev" )
+VALUES                              (0,                 1                 );
+INSERT INTO "Courses_MM_Courses"    ("id_courses_cur",  "id_courses_prev" )
+VALUES                              (0,                 2                 );
+
 /* Rooms */
 
 INSERT INTO "Rooms"     ("id",  "type",                 "number")
@@ -342,95 +338,50 @@ VALUES                  (5,     'Учебная аудитория',    175);
 /* Students */
 
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (34,    'Дементьева Наталия Игоревна',  63,         TRUE);
+VALUES                  (0,     'Дементьева Наталия Игоревна',  63,         TRUE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (35,    'Михайлов Александр Павлович',  44,         FALSE);
+VALUES                  (1,     'Михайлов Александр Павлович',  44,         FALSE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (36,    'Шашков Семен Андреевич',       23,         TRUE);
+VALUES                  (2,     'Шашков Семен Андреевич',       23,         TRUE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (37,    'Авдеева Олеся Святославовна',  79,         FALSE);
+VALUES                  (3,     'Авдеева Олеся Святославовна',  79,         FALSE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (42,    'Семёнов Марк Родионович',      45,         FALSE);
+VALUES                  (4,     'Семенов Марк Родионович',      45,         FALSE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (43,    'Максимова Ангелина Петровна',  78,         TRUE);
+VALUES                  (5,     'Максимова Ангелина Петровна',  78,         TRUE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (45,    "Логинов Эрик Робертович",      30,         FALSE);
+VALUES                  (6,     'Логинов Эрик Робертович',      30,         FALSE);
 INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (46,    'Крылов Алексей Васильевич',    81,         TRUE);
-
-/* Gradebook */
-
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (130,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (131,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (132,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (133,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (134,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (135,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (136,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (137,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (138,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (139,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (140,    'Тест',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (141,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (142,    'Тест',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (143,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (144,    'Тест',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (145,    'Тест',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (146,    'Тест',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (147,    'Лаба',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (148,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (149,    'Лаба',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (150,    'Лаба',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (151,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (152,    'Лаба',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (153,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (154,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (155,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (156,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (157,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (158,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (159,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (160,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (161,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (162,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (163,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (164,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (165,    'Занятие',  4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (166,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (167,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (168,    'Занятие',  3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (169,    'Тест',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (170,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (171,    'Тест',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (172,    'Тест',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (173,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (174,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (175,    'Тест',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (176,    'Тест',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (177,    'Лаба',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (178,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (179,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (180,    'Лаба',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (181,    'Лаба',     3);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (182,    'Лаба',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (183,    'Лаба',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (184,    'Лаба',     5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (185,    'Занятие',  2);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (186,    'Занятие',  5);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (187,    'Итог',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (188,    'Итог',     4);
-INSERT INTO "Gradebook" ("id", "type", "score") VALUES (189,    'Итог',     3);
+VALUES                  (7,     'Крылов Алексей Васильевич',    81,         TRUE);
 
 /* Timetable */
 
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (20,   '10:00:00', '12:30:00', 1);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (21,   '13:00:00', '13:30:00', 1);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (22,   '13:00:00', '13:30:00', 1);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (23,   '10:00:00', '12:30:00', 3);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (34,   '13:00:00', '13:30:00', 3);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (35,   '10:00:00', '12:30:00', 4);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (36,   '10:00:00', '12:30:00', 4);
-INSERT INTO "Timetable" ("id", "start", "end", "dow") VALUES (37,   '13:00:00', '13:30:00', 4);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (0,   '10:00:00', '12:30:00', 1, 0, 0, 1);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (1,   '13:00:00', '13:30:00', 1, 0, 4, 1);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (2,   '13:00:00', '13:30:00', 1, 0, 5, 5);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (3,   '10:00:00', '12:30:00', 3, 0, 0, 1);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (4,   '13:00:00', '13:30:00', 3, 0, 4, 5);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (5,   '10:00:00', '12:30:00', 4, 0, 0, 5);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (6,   '10:00:00', '12:30:00', 4, 0, 4, 1);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (7,   '13:00:00', '13:30:00', 4, 0, 5, 5);
+
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (8,   '10:00:00', '12:30:00', 1, 1, 4, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (9,   '13:00:00', '13:30:00', 1, 1, 5, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (10,  '13:00:00', '13:30:00', 1, 1, 0, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (11,  '10:00:00', '12:30:00', 3, 1, 5, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (12,  '13:00:00', '13:30:00', 3, 1, 5, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (13,  '10:00:00', '12:30:00', 4, 1, 4, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (14,  '10:00:00', '12:30:00', 4, 1, 5, 2);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (15,  '13:00:00', '13:30:00', 4, 1, 0, 2);
+
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (16,  '10:00:00', '12:30:00', 1, 2, 4, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (17,  '13:00:00', '13:30:00', 1, 2, 0, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (18,  '13:00:00', '13:30:00', 1, 2, 5, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (19,  '10:00:00', '12:30:00', 3, 2, 4, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (20,  '13:00:00', '13:30:00', 3, 2, 0, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (21,  '10:00:00', '12:30:00', 4, 2, 5, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (22,  '10:00:00', '12:30:00', 4, 2, 0, 3);
+INSERT INTO "Timetable" ("id", "start", "end", "dow", "id_courses", "id_rooms", "id_teachers") VALUES (23,  '13:00:00', '13:30:00', 4, 2, 4, 3);
 
 /* Documents */
 
@@ -442,50 +393,258 @@ INSERT INTO "Documents" ("id", "type", "number", "id_teachers") VALUES (1,  'Д�
 INSERT INTO "Documents" ("id", "type", "number", "id_teachers") VALUES (3,  'Диплом',                   '471548 2874782',   2);
 INSERT INTO "Documents" ("id", "type", "number", "id_teachers") VALUES (5,  'Диплом',                   '215678 3205704',   3);
 INSERT INTO "Documents" ("id", "type", "number", "id_teachers") VALUES (7,  'Диплом',                   '393024 7882445',   5);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (23, 'Свидетельство о рождении', 'IV-ЖА 837462',     35);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (24, 'Свидетельство о рождении', 'XI-ВЫ 643254',     37);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (25, 'Свидетельство о рождении', 'XV-МК 867014',     42);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (26, 'Свидетельство о рождении', 'II-ЛУ 953135',     45);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (29, 'Паспорт',                  '4018 850788',      34);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (32, 'Паспорт',                  '4017 634234',      36);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (33, 'Паспорт',                  '4019 853456',      43);
-INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (34, 'Паспорт',                  '4020 352465',      46);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (23, 'Свидетельство о рождении', 'IV-ЖА 837462',     1);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (24, 'Свидетельство о рождении', 'XI-ВЫ 643254',     3);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (25, 'Свидетельство о рождении', 'XV-МК 867014',     4);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (26, 'Свидетельство о рождении', 'II-ЛУ 953135',     6);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (29, 'Паспорт',                  '4018 850788',      0);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (32, 'Паспорт',                  '4017 634234',      2);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (33, 'Паспорт',                  '4019 853456',      5);
+INSERT INTO "Documents" ("id", "type", "number", "id_students") VALUES (34, 'Паспорт',                  '4020 352465',      7);
 
 /* Jobs */
 
-INSERT INTO "Jobs"      ("id", "name") VALUES (1,   'ФГАОУ ВО СПбПУ');
-INSERT INTO "Jobs"      ("id", "name") VALUES (2,   'ООО НеоБИТ');
-INSERT INTO "Jobs"      ("id", "name") VALUES (3,   'АО МЦСТ');
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (0,   'ФГАОУ ВО СПбПУ',    3);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (1,   'ФГАОУ ВО СПбПУ',    5);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (2,   'ООО НеоБИТ',        1);
+INSERT INTO "Jobs"      ("id", "name", "id_teachers") VALUES (3,   'АО МЦСТ',           2);
 
 /* Parents */
 
-INSERT INTO "Parents"   ("id", "name") VALUES (30,  'Михайлов Павел Антонович');
-INSERT INTO "Parents"   ("id", "name") VALUES (31,  'Михайлова Зоя Васильевна');
-INSERT INTO "Parents"   ("id", "name") VALUES (32,  'Авдеев Святослав Богданович');
-INSERT INTO "Parents"   ("id", "name") VALUES (33,  'Авдеева Елена Юрьевна');
-INSERT INTO "Parents"   ("id", "name") VALUES (33,  'Семёнов Родион Витальевич');
-INSERT INTO "Parents"   ("id", "name") VALUES (34,  'Семёнова Валерия Мартыновна');
-INSERT INTO "Parents"   ("id", "name") VALUES (35,  'Логинов Роберт Геннадьевич');
-INSERT INTO "Parents"   ("id", "name") VALUES (36,  'Логинова Кристина Матвеевна');
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (30,  'Михайлов Павел Антонович',      0);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (31,  'Михайлова Зоя Васильевна',      1);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (32,  'Авдеев Святослав Богданович',   2);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (33,  'Авдеева Елена Юрьевна',         3);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (34,  'Семенов Родион Витальевич',     4);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (35,  'Семенова Валерия Мартыновна',   5);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (36,  'Логинов Роберт Геннадьевич',    6);
+INSERT INTO "Parents"   ("id", "name", "id_students") VALUES (37,  'Логинова Кристина Матвеевна',   7);
 
 
 /* Equipment */
 
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       92394);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       40446);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       49939);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       14949);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       31254);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       75727);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       80152);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       43809);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       50706);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       78087);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       78207);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'ПК',                       98324);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'Проектор',                 28870);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'Учебный коммутатор',       46193);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'Учебный коммутатор',       59193);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'Учебный маршрутизатор',    37154);
-INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0, 'Учебный маршрутизатор',    38304);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (0,     'ПК',                       92394);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (1,     'ПК',                       40446);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (2,     'ПК',                       49939);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (3,     'ПК',                       14949);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (4,     'ПК',                       31254);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (5,     'ПК',                       75727);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (6,     'ПК',                       80152);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (7,     'ПК',                       43809);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (8,     'ПК',                       50706);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (9,     'ПК',                       78087);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (10,    'ПК',                       78207);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (11,    'ПК',                       98324);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (12,    'Проектор',                 28870);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (13,    'Учебный коммутатор',       46193);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (14,    'Учебный коммутатор',       59193);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (15,    'Учебный маршрутизатор',    37154);
+INSERT INTO "Equipment" ("id", "name", "number_inv") VALUES (16,    'Учебный маршрутизатор',    38304);
+
+
+/* Gradebook */
+
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (123,    'Занятие',  4, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (124,    'Занятие',  4, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (125,    'Занятие',  3, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (126,    'Занятие',  4, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (127,    'Занятие',  5, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (128,    'Занятие',  4, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (129,    'Занятие',  5, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (130,    'Занятие',  5, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (131,    'Тест',     5, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (132,    'Тест',     3, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (133,    'Тест',     5, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (134,    'Тест',     3, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (135,    'Тест',     5, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (136,    'Тест',     3, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (137,    'Тест',     4, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (138,    'Тест',     3, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (139,    'Лаба',     4, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (140,    'Лаба',     3, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (141,    'Лаба',     5, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (142,    'Лаба',     4, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (143,    'Лаба',     3, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (144,    'Лаба',     4, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (145,    'Лаба',     3, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (146,    'Лаба',     3, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (147,    'Занятие',  4, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (148,    'Занятие',  5, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (149,    'Занятие',  5, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (150,    'Занятие',  5, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (151,    'Занятие',  3, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (152,    'Занятие',  3, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (153,    'Занятие',  5, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (154,    'Занятие',  5, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (155,    'Занятие',  3, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (156,    'Занятие',  3, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (157,    'Занятие',  4, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (158,    'Занятие',  3, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (159,    'Занятие',  5, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (160,    'Занятие',  3, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (161,    'Тест',     4, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (162,    'Тест',     5, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (163,    'Тест',     4, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (164,    'Тест',     4, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (165,    'Тест',     5, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (166,    'Тест',     5, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (167,    'Тест',     3, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (168,    'Тест',     5, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (169,    'Лаба',     4, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (170,    'Лаба',     3, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (171,    'Лаба',     3, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (172,    'Лаба',     5, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (173,    'Лаба',     3, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (174,    'Лаба',     5, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (175,    'Лаба',     5, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (176,    'Лаба',     5, 1, 7, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (177,    'Занятие',  5, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (178,    'Занятие',  4, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (179,    'Занятие',  3, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (180,    'Занятие',  4, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (181,    'Занятие',  5, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (182,    'Итог',     3, 1, 0, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (183,    'Итог',     4, 1, 1, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (184,    'Итог',     5, 1, 2, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (185,    'Итог',     5, 1, 3, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (186,    'Итог',     4, 1, 4, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (187,    'Итог',     3, 1, 5, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (188,    'Итог',     4, 1, 6, 2);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (189,    'Итог',     5, 1, 7, 2);
+
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (190,    'Занятие',  4, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (191,    'Занятие',  4, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (192,    'Занятие',  3, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (193,    'Занятие',  4, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (194,    'Занятие',  5, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (195,    'Занятие',  4, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (196,    'Занятие',  5, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (197,    'Занятие',  5, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (198,    'Тест',     5, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (199,    'Тест',     3, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (200,    'Тест',     5, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (201,    'Тест',     3, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (202,    'Тест',     5, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (203,    'Тест',     3, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (204,    'Тест',     4, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (205,    'Тест',     3, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (206,    'Лаба',     4, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (207,    'Лаба',     3, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (208,    'Лаба',     5, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (209,    'Лаба',     4, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (210,    'Лаба',     3, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (211,    'Лаба',     4, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (212,    'Лаба',     3, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (213,    'Лаба',     3, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (214,    'Занятие',  4, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (215,    'Занятие',  5, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (216,    'Занятие',  5, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (217,    'Занятие',  5, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (218,    'Занятие',  3, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (219,    'Занятие',  3, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (220,    'Занятие',  5, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (221,    'Занятие',  5, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (222,    'Занятие',  3, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (223,    'Занятие',  3, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (224,    'Занятие',  4, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (225,    'Занятие',  3, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (226,    'Занятие',  5, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (227,    'Занятие',  3, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (228,    'Тест',     4, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (229,    'Тест',     5, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (230,    'Тест',     4, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (231,    'Тест',     4, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (232,    'Тест',     5, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (233,    'Тест',     5, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (234,    'Тест',     3, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (235,    'Тест',     5, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (236,    'Лаба',     4, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (237,    'Лаба',     3, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (238,    'Лаба',     3, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (239,    'Лаба',     5, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (240,    'Лаба',     3, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (241,    'Лаба',     5, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (242,    'Лаба',     5, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (243,    'Лаба',     5, 2, 5, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (244,    'Занятие',  5, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (245,    'Занятие',  4, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (246,    'Занятие',  3, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (247,    'Занятие',  4, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (248,    'Занятие',  5, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (249,    'Итог',     3, 2, 4, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (250,    'Итог',     4, 2, 3, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (251,    'Итог',     5, 2, 1, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (252,    'Итог',     5, 2, 6, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (253,    'Итог',     4, 2, 2, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (254,    'Итог',     3, 2, 7, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (255,    'Итог',     4, 2, 0, 3);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (256,    'Итог',     5, 2, 5, 3);
+
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (257,    'Занятие',  4, 1, 7, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (258,    'Занятие',  4, 1, 0, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (259,    'Занятие',  3, 1, 2, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (260,    'Занятие',  4, 1, 1, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (261,    'Занятие',  5, 1, 3, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (262,    'Занятие',  4, 1, 4, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (263,    'Занятие',  5, 1, 5, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (264,    'Занятие',  5, 1, 6, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (265,    'Тест',     5, 1, 7, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (266,    'Тест',     3, 1, 0, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (267,    'Тест',     5, 1, 2, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (268,    'Тест',     3, 1, 1, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (269,    'Тест',     5, 1, 3, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (270,    'Тест',     3, 1, 4, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (271,    'Тест',     4, 1, 5, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (272,    'Тест',     3, 1, 6, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (273,    'Лаба',     4, 1, 7, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (274,    'Лаба',     3, 1, 0, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (275,    'Лаба',     5, 1, 2, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (276,    'Лаба',     4, 1, 1, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (277,    'Лаба',     3, 1, 3, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (278,    'Лаба',     4, 1, 4, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (279,    'Лаба',     3, 1, 5, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (280,    'Лаба',     3, 1, 6, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (281,    'Занятие',  4, 1, 7, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (282,    'Занятие',  5, 1, 0, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (283,    'Занятие',  5, 1, 2, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (284,    'Занятие',  5, 1, 1, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (285,    'Занятие',  3, 1, 3, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (286,    'Занятие',  3, 1, 4, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (287,    'Занятие',  5, 1, 5, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (288,    'Занятие',  5, 1, 6, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (289,    'Занятие',  3, 1, 7, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (290,    'Занятие',  3, 1, 0, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (291,    'Занятие',  4, 1, 2, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (292,    'Занятие',  3, 1, 1, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (293,    'Занятие',  5, 1, 3, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (294,    'Занятие',  3, 1, 4, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (295,    'Тест',     4, 1, 7, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (296,    'Тест',     5, 1, 0, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (297,    'Тест',     4, 1, 2, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (298,    'Тест',     4, 1, 1, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (299,    'Тест',     5, 1, 3, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (300,    'Тест',     5, 1, 4, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (301,    'Тест',     3, 1, 5, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (302,    'Тест',     5, 1, 6, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (303,    'Лаба',     4, 1, 7, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (304,    'Лаба',     3, 1, 0, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (305,    'Лаба',     3, 1, 2, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (306,    'Лаба',     5, 1, 1, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (307,    'Лаба',     3, 1, 3, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (308,    'Лаба',     5, 1, 4, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (309,    'Лаба',     5, 1, 5, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (310,    'Лаба',     5, 1, 6, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (311,    'Занятие',  5, 1, 7, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (312,    'Занятие',  4, 1, 0, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (313,    'Занятие',  3, 1, 2, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (314,    'Занятие',  4, 1, 1, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (315,    'Занятие',  5, 1, 3, 5);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (316,    'Итог',     3, 1, 7, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (317,    'Итог',     4, 1, 0, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (318,    'Итог',     5, 1, 2, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (319,    'Итог',     5, 1, 1, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (320,    'Итог',     4, 1, 3, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (321,    'Итог',     3, 1, 4, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (322,    'Итог',     4, 1, 5, 1);
+INSERT INTO "Gradebook" ("id", "type", "score", "id_courses", "id_students", "id_teachers") VALUES (323,    'Итог',     5, 1, 6, 1);
 
