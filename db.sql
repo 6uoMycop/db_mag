@@ -1,5 +1,5 @@
 /*
- * Initial drop all tables
+ * Initial drop all tables and triggers
  */
 
 DROP TABLE IF EXISTS "Students"     CASCADE;
@@ -18,6 +18,10 @@ DROP TABLE IF EXISTS "Rooms_MM_Equipment"       CASCADE;
 DROP TABLE IF EXISTS "Courses_MM_Courses"       CASCADE;
 DROP TABLE IF EXISTS "Students_MM_Courses"      CASCADE;
 
+DROP TRIGGER IF EXISTS student_check ON "Students";
+DROP FUNCTION IF EXISTS student_check();
+DROP TRIGGER IF EXISTS previous_price_check ON "Courses_MM_Courses";
+DROP FUNCTION IF EXISTS previous_price_check();
 
 
 /*
@@ -261,6 +265,7 @@ CREATE TABLE "Courses_MM_Equipment" (
 );
 
 
+
 CREATE TABLE "Rooms_MM_Equipment" (
 /* Foreign keys */
     "id_rooms"      integer         NOT NULL,
@@ -309,6 +314,50 @@ ALTER TABLE "Documents" ADD CONSTRAINT "Documents_fk1"  FOREIGN KEY ("id_teacher
 ALTER TABLE "Jobs"      ADD CONSTRAINT "Jobs_fk0"       FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id");
 
 ALTER TABLE "Parents"   ADD CONSTRAINT "Parents_fk0"    FOREIGN KEY ("id_students")     REFERENCES "Students"("id");
+
+
+
+/*
+ * Triggers
+ */
+
+/* Check student's rating */
+
+CREATE FUNCTION student_check() RETURNS trigger AS $student_check$
+    DECLARE
+        "rating_prev"   integer;
+    BEGIN
+        "rating_prev"   := (SELECT "rating" FROM "Students" WHERE "id" = NEW."id");
+        IF (NEW."rating" < div("rating_prev", 5) * 5) THEN
+            RAISE EXCEPTION 'student_check(): Student''s rating can''t go lower then the threshold level';
+        END IF;
+        RETURN NEW;
+    END
+$student_check$     LANGUAGE plpgsql;
+
+
+/* Check the price of previous courses */
+
+CREATE FUNCTION previous_price_check() RETURNS trigger AS $previous_price_check$
+    DECLARE
+        "price_cur"     integer;
+        "price_prev"    integer;
+    BEGIN
+        "price_cur"     := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_cur");
+        "price_prev"    := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_prev");
+
+        IF "price_cur" < "price_prev" THEN
+            RAISE EXCEPTION 'previous_price_check(): No course can be cheaper that any of it''s previous course';
+        END IF;
+        RETURN NEW;
+    END
+$previous_price_check$ LANGUAGE plpgsql;
+
+
+/* Creation */
+
+CREATE TRIGGER student_check            BEFORE UPDATE ON "Students"             FOR EACH ROW EXECUTE PROCEDURE student_check();
+CREATE TRIGGER previous_price_check     BEFORE INSERT ON "Courses_MM_Courses"   FOR EACH ROW EXECUTE PROCEDURE previous_price_check();
 
 
 
