@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS "Equipment"    CASCADE;
 DROP TABLE IF EXISTS "Courses_MM_Equipment"     CASCADE;
 DROP TABLE IF EXISTS "Rooms_MM_Equipment"       CASCADE;
 DROP TABLE IF EXISTS "Courses_MM_Courses"       CASCADE;
+DROP TABLE IF EXISTS "Teachers_MM_Courses"      CASCADE;
 DROP TABLE IF EXISTS "Students_MM_Courses"      CASCADE;
 
 DROP TRIGGER IF EXISTS student_check ON "Students";
@@ -286,6 +287,16 @@ CREATE TABLE "Courses_MM_Courses" (  -- Предшествующие курсы
 
 
 
+CREATE TABLE "Teachers_MM_Courses" (
+/* Foreign keys */
+    "id_teachers"       integer     NOT NULL,
+    "id_courses"        integer     NOT NULL,
+    CONSTRAINT "C_mm_С_fk0"         FOREIGN KEY ("id_teachers")     REFERENCES "Teachers"("id"),
+    CONSTRAINT "C_mm_С_fk1"         FOREIGN KEY ("id_courses")      REFERENCES "Courses"("id")
+);
+
+
+
 CREATE TABLE "Students_MM_Courses" (
 /* Foreign keys */
     "id_students"       integer     NOT NULL,
@@ -391,6 +402,14 @@ VALUES                  (2,     'Системное программирован
 
 INSERT INTO "Courses_MM_Courses" ("id_courses_cur", "id_courses_prev") VALUES (0, 1);
 INSERT INTO "Courses_MM_Courses" ("id_courses_cur", "id_courses_prev") VALUES (0, 2);
+
+
+/* Teachers_MM_Courses */
+
+INSERT INTO "Teachers_MM_Courses" ("id_teachers", "id_courses") VALUES (1, 0);
+INSERT INTO "Teachers_MM_Courses" ("id_teachers", "id_courses") VALUES (2, 1);
+INSERT INTO "Teachers_MM_Courses" ("id_teachers", "id_courses") VALUES (3, 2);
+INSERT INTO "Teachers_MM_Courses" ("id_teachers", "id_courses") VALUES (5, 0);
 
 
 /* Rooms */
