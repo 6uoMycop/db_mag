@@ -37,7 +37,7 @@ CREATE TABLE "Students" (
 /* Attributes */
     "id"            integer,
     "name"          varchar(128)    NOT NULL,
-    "rating"        integer         NOT NULL,
+    "rating"        integer         NOT NULL    DEFAULT 0,
     "majority"      BOOLEAN         NOT NULL,
 /* Attributes constraints */
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
