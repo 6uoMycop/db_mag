@@ -36,10 +36,13 @@ DROP FUNCTION IF EXISTS previous_price_check();
 CREATE TABLE "Students" (
 /* Attributes */
     "id"            integer,
+    "username"      varchar(32)     NOT NULL    UNIQUE,
     "name"          varchar(128)    NOT NULL,
     "rating"        integer         NOT NULL    DEFAULT 0,
     "majority"      BOOLEAN,
 /* Attributes constraints */
+    CONSTRAINT "username_check"     CHECK (     -- English alphabet and numbers. Length >= 3. Starts with '_'
+        "username" ~ '^_([a-z]|[A-Z]|[0-9]){3,}$'),
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
         "name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
     CONSTRAINT "rating_interval"    CHECK (     -- Rating in range [0, 100]
@@ -55,12 +58,15 @@ CREATE TABLE "Students" (
 CREATE TABLE "Teachers" (
 /* Attributes */
     "id"            integer,
+    "username"      varchar(32)     NOT NULL    UNIQUE,
     "name"          varchar(128)    NOT NULL,
     "speciality"    varchar(64)     NOT NULL,
     "degree"        varchar(64)     NOT NULL,
     "rating"        integer         NOT NULL,
     "salary"        FLOAT           NOT NULL,
 /* Attributes constraints */
+    CONSTRAINT "username_check"     CHECK (     -- English alphabet and numbers. Length >= 3
+        "username" ~ '^([a-z]|[A-Z]|[0-9]){3,}$'),
     CONSTRAINT "name_check"         CHECK (     -- Russian alphabet, space and '-'. Length >= 3
         "name" ~ '^([а-я]|[А-Я]|[ -]){3,}$'),
     CONSTRAINT "speciality_check"   CHECK (     -- Russian alphabet, space, ',' and '-'. Length >= 3
@@ -334,13 +340,15 @@ ALTER TABLE "Parents"   ADD CONSTRAINT "Parents_fk0"    FOREIGN KEY ("id_student
 
 /* Check student's rating */
 
-CREATE FUNCTION student_check() RETURNS trigger AS $student_check$
+CREATE FUNCTION student_check() RETURNS TRIGGER AS $student_check$
     DECLARE
         "rating_prev"   integer;
     BEGIN
-        "rating_prev"   := (SELECT "rating" FROM "Students" WHERE "id" = NEW."id");
-        IF (NEW."rating" < div("rating_prev", 5) * 5) THEN
-            RAISE EXCEPTION 'student_check(): Student''s rating can''t go lower then the threshold level';
+        IF (SELECT current_role = 'postgres') THEN
+            "rating_prev"   := (SELECT "rating" FROM "Students" WHERE "id" = NEW."id");
+            IF (NEW."rating" < div("rating_prev", 5) * 5) THEN
+                RAISE EXCEPTION 'student_check(): Student''s rating can''t go lower then the threshold level';
+            END IF;
         END IF;
         RETURN NEW;
     END
@@ -349,16 +357,18 @@ $student_check$     LANGUAGE plpgsql;
 
 /* Check the price of previous courses */
 
-CREATE FUNCTION previous_price_check() RETURNS trigger AS $previous_price_check$
+CREATE FUNCTION previous_price_check() RETURNS TRIGGER AS $previous_price_check$
     DECLARE
         "price_cur"     integer;
         "price_prev"    integer;
     BEGIN
-        "price_cur"     := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_cur");
-        "price_prev"    := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_prev");
-
-        IF "price_cur" < "price_prev" THEN
-            RAISE EXCEPTION 'previous_price_check(): No course can be cheaper that any of it''s previous course';
+        IF (SELECT current_role = 'postgres') THEN
+            "price_cur"     := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_cur");
+            "price_prev"    := (SELECT "price" FROM "Courses" WHERE "id" = NEW."id_courses_prev");
+		    
+            IF "price_cur" < "price_prev" THEN
+                RAISE EXCEPTION 'previous_price_check(): No course can be cheaper that any of it''s previous course';
+            END IF;
         END IF;
         RETURN NEW;
     END
@@ -378,14 +388,14 @@ CREATE TRIGGER previous_price_check     BEFORE INSERT ON "Courses_MM_Courses"   
 
 /* Teachers */
 
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
-VALUES                  (1,     'Иванков Илья Дмитриевич',      'Информационная безопасность',                      'Кандидат наук',    79,         112000  );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
-VALUES                  (2,     'Мишин Даниил Романович',       'Информатика и вычислительная техника',             'Магистр',          46,         60000   );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
-VALUES                  (3,     'Сысоева Лариса Вениаминовна',  'Управление в технических системах',                'Кандидат наук',    72,         109000  );
-INSERT INTO "Teachers"  ("id",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
-VALUES                  (5,     'Тарасов Роман Семенович',      'Математическая логика, алгебра и теория чисел',    'Доктор наук',      99,         200000  );
+INSERT INTO "Teachers"  ("id", "username",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (1,    'ivankov',   'Иванков Илья Дмитриевич',      'Информационная безопасность',                      'Кандидат наук',    79,         112000  );
+INSERT INTO "Teachers"  ("id", "username",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (2,    'mishin',    'Мишин Даниил Романович',       'Информатика и вычислительная техника',             'Магистр',          46,         60000   );
+INSERT INTO "Teachers"  ("id", "username",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (3,    'sysoeva',   'Сысоева Лариса Вениаминовна',  'Управление в технических системах',                'Кандидат наук',    72,         109000  );
+INSERT INTO "Teachers"  ("id", "username",  "name",                         "speciality",                                       "degree",           "rating",   "salary")
+VALUES                  (5,    'tarasov',   'Тарасов Роман Семенович',      'Математическая логика, алгебра и теория чисел',    'Доктор наук',      99,         200000  );
 
 
 /* Courses */
@@ -428,22 +438,22 @@ VALUES                  (5,     'Учебная аудитория',    175);
 
 /* Students */
 
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (0,     'Дементьева Наталия Игоревна',  63,         TRUE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (1,     'Михайлов Александр Павлович',  44,         FALSE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (2,     'Шашков Семен Андреевич',       23,         TRUE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (3,     'Авдеева Олеся Святославовна',  79,         FALSE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (4,     'Семенов Марк Родионович',      45,         FALSE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (5,     'Максимова Ангелина Петровна',  78,         TRUE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (6,     'Логинов Эрик Робертович',      30,         FALSE);
-INSERT INTO "Students"  ("id",  "name",                         "rating",   "majority")
-VALUES                  (7,     'Крылов Алексей Васильевич',    81,         TRUE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (0,    '_dementyeva', 'Дементьева Наталия Игоревна',  63,         TRUE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (1,    '_mihaylov',   'Михайлов Александр Павлович',  44,         FALSE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (2,    '_shashkov',   'Шашков Семен Андреевич',       23,         TRUE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (3,    '_avdeeva',    'Авдеева Олеся Святославовна',  79,         FALSE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (4,    '_semenov',    'Семенов Марк Родионович',      45,         FALSE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (5,    '_maksimova',  'Максимова Ангелина Петровна',  78,         TRUE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (6,    '_loginov',    'Логинов Эрик Робертович',      30,         FALSE);
+INSERT INTO "Students"  ("id", "username",    "name",                         "rating",   "majority")
+VALUES                  (7,    '_krylov',     'Крылов Алексей Васильевич',    81,         TRUE);
 
 
 /* Students_MM_Courses */
