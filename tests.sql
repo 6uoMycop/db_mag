@@ -222,4 +222,33 @@ SELECT * FROM "Students" WHERE "username" = '_newstudent';
 
 
 
+/* Test cases 3.4.X -- Administrator's policy */
+
+/* Test case 3.4.1 */
+
+RESET ROLE;
+SET ROLE role_administrator;
+SELECT * FROM get_price_avg_by_teacher(); 
+
+--      Expected:
+-- 79000	"Сысоева Лариса Вениаминовна"
+-- 120000	"Иванков Илья Дмитриевич"
+-- 120000	"Тарасов Роман Семенович"
+-- 40000	"Мишин Даниил Романович"
+
+RESET ROLE;
+
+
+/* Test case 3.4.2 */
+
+RESET ROLE;
+SET ROLE role_student;
+SELECT * FROM get_price_avg_by_teacher(); 
+
+--      Expected:
+-- ERROR:  permission denied for view view_teachers_mm_courses
+-- CONTEXT:  SQL function "get_price_avg_by_teacher" statement 1
+-- SQL state: 42501
+
+RESET ROLE;
 
